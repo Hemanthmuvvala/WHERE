@@ -97,7 +97,12 @@ export function ReportCard({ report, type, matchCount, href }: ReportCardProps) 
     );
 
     if (href) {
-        return <Link href={href}>{content}</Link>;
+        return (
+            <Link href={href} className="block h-full cursor-pointer">
+                {content}
+            </Link>
+        );
     }
     return content;
 }
+

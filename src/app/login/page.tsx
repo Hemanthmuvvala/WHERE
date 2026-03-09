@@ -28,15 +28,16 @@ export default function LoginPage() {
         }
         setLoading(true);
         try {
-            await signIn(email, password);
-            // Redirect based on role — appUser updates after sign in
-            setTimeout(() => {
-                const role = appUser?.role;
-                router.push(role === 'police' ? '/police' : '/dashboard');
-            }, 500);
+            const userCred = await signIn(email, password);
+            // Read role directly from Firestore — appUser state may not have updated yet
+            const { getDoc, doc } = await import('firebase/firestore');
+            const { db } = await import('@/lib/firebase');
+            const userDoc = await getDoc(doc(db, 'users', userCred.user.uid));
+            const role = userDoc.exists() ? userDoc.data().role : 'citizen';
+            router.push(role === 'police' ? '/police' : '/dashboard');
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Login failed';
-            toast.error('Login failed', { description: message.includes('invalid') ? 'Invalid email or password.' : message });
+            toast.error('Login failed', { description: message.includes('invalid') || message.includes('credential') ? 'Invalid email or password.' : message });
         } finally {
             setLoading(false);
         }

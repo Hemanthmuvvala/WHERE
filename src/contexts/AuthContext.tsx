@@ -7,6 +7,7 @@ import {
     signOut as firebaseSignOut,
     onAuthStateChanged,
     User,
+    UserCredential,
 } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -17,7 +18,7 @@ interface AuthContextType {
     appUser: AppUser | null;
     loading: boolean;
     signUp: (email: string, password: string, name: string, role: UserRole, stationName?: string) => Promise<void>;
-    signIn: (email: string, password: string) => Promise<void>;
+    signIn: (email: string, password: string) => Promise<UserCredential>;
     signOut: () => Promise<void>;
 }
 
@@ -65,8 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAppUser(newUser);
     };
 
-    const signIn = async (email: string, password: string) => {
-        await signInWithEmailAndPassword(auth, email, password);
+    const signIn = async (email: string, password: string): Promise<UserCredential> => {
+        return signInWithEmailAndPassword(auth, email, password);
     };
 
     const signOut = async () => {
